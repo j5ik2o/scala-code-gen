@@ -14,8 +14,8 @@ class CodeGenServiceTest extends AssertionsForJUnit {
   def test {
     val fms = List(FieldMeta("name", "java.lang.String"))
     val cms = List(ClassMeta(Identifier(), "Emp", Some("emp"), fms))
-    val codeGenService = new CodeGenService(cms, new File("java"), new File("template"))
-    codeGenService.generate
+    val codeGenService = new CodeGenService(new File("java"), new File("template"))
+    codeGenService.generate(cms)
   }
 
 }

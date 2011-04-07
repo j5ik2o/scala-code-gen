@@ -5,9 +5,9 @@ import java.io.{FileWriter, File}
 import codegen.utils.using
 import scala.collection.JavaConverters._
 
-class CodeGenService(classMetas: List[ClassMeta], exportDir: File, templateDir: File) {
+class CodeGenService(exportDir: File, templateDir: File) {
 
-  def generate = {
+  def generate(classMetas: List[ClassMeta]) = {
     val configuration = new Configuration
     configuration.setDirectoryForTemplateLoading(templateDir)
     val template = configuration.getTemplate("java.ftl")

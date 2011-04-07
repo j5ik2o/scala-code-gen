@@ -3,47 +3,52 @@ package codegen.application
 import java.io.File
 import io.Source
 import jp.tricreo.scala.ddd.base.model.Identifier
-import codegen.infrastructure.parser.{CommandLineParseException, CommandLineParser}
 import codegen.domain.{ClassMeta, CodeGenService, ClassMetaRepository}
-
-/**
- * Created by IntelliJ IDEA.
- * User: junichi
- * Date: 11/04/06
- * Time: 16:15
- * To change this template use File | Settings | File Templates.
- */
+import codegen.infrastructure.parser.{CommandLine, CommandLineParseException, CommandLineParser}
 
 object Application {
 
-  val templateDir = new File("template");
-  val exportDir = new File("export");
+  private val defaultTemplateDir = new File("template");
+  private val defaultExportDir = new File("export");
 
-  def generate(configFile: File, templateDir: File = templateDir, exportDir: File = exportDir,
-               ids:List[String] = List.empty[String]) {
+  private def generate(configFile: File,
+                       templateDir: File = defaultTemplateDir,
+                       exportDir: File = defaultExportDir,
+                       ids: List[String] = List.empty[String]) {
     val repos = new ClassMetaRepository(Source.fromFile(configFile))
-    val targets:List[ClassMeta] = ids match {
+    val gen = new CodeGenService(exportDir, templateDir)
+    val targets: List[ClassMeta] = ids match {
       case Nil => repos.toList
-      case xs:List[String] => xs.map{
-        e =>
-        repos.resolve(Identifier(e))
+      case xs: List[String] => xs.map {
+        e => repos.resolve(Identifier(e))
       }
     }
-    val gen = new CodeGenService(targets, exportDir, templateDir)
-    gen.generate
-
+    gen.generate(targets)
   }
 
-  def main(args: Array[String]) {
+  private def getIdList(commandLine: CommandLine) =
+    commandLine.configFile.ids
 
-    val clp = new CommandLineParser
-    try{
-      val cl = clp.parse(args.mkString(" "))
-      generate(new File(cl.configFile.name),
-        if (cl.templateDir.isDefined) new File(cl.templateDir.get) else templateDir,
-        if (cl.exportDir.isDefined) new File(cl.exportDir.get) else exportDir, cl.configFile.ids)
-    }catch{
-      case e:CommandLineParseException => println("コマンドライン引数が不正です")
+  private def getConfigFile(commandLine: CommandLine) =
+    new File(commandLine.configFile.name)
+
+  private def getTemplateDir(commandLine: CommandLine) =
+    if (commandLine.templateDir.isDefined) new File(commandLine.templateDir.get)
+    else defaultTemplateDir
+
+  private def getExportDir(commandLine: CommandLine) =
+    if (commandLine.exportDir.isDefined) new File(commandLine.exportDir.get)
+    else defaultExportDir
+
+  def main(args: Array[String]) {
+    try {
+      val commandLine = new CommandLineParser().parse(args.mkString(" "))
+      generate(getConfigFile(commandLine),
+        getTemplateDir(commandLine),
+        getExportDir(commandLine),
+        getIdList(commandLine))
+    } catch {
+      case e: CommandLineParseException => println("コマンドライン引数が不正です")
     }
   }
 
