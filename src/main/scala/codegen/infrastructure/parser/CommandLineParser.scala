@@ -22,20 +22,18 @@ class CommandLineParser extends RegexParsers {
       CommandLine(configFile, templateDirOption, exportDirOption)
   }
 
-  lazy val configFile = ("-c" | "--config") ~ opt("[" ~ repsep(id, ",") ~ "]@") ~ path ^^ {
-    case _ ~ Some("[" ~ ids ~ "]@") ~ cpath => ConfigFile(cpath, ids)
-    case _ ~ None ~ cpath => ConfigFile(cpath, List.empty[String])
+  lazy val configFile = ("-c" | "--config") ~> opt("[" ~ repsep(id, ",") ~ "]@") ~ path ^^ {
+    case Some("[" ~ ids ~ "]@") ~ cpath => ConfigFile(cpath, ids)
+    case None ~ cpath => ConfigFile(cpath, List.empty[String])
   }
 
-  lazy val templateDir = ("-t" | "--template") ~ path ^^ {
-    case _ ~ tpath => tpath
-  }
+  lazy val templateDir = ("-t" | "--template") ~> path
 
-  lazy val exportDir = ("-e" | "--export") ~ path ^^ {
-    case _ ~ epath => epath
-  }
+  lazy val exportDir = ("-e" | "--export") ~> path
+
 
   lazy val path = """\S*""".r
+
   lazy val id = """[\-0-9a-zA-Z]+""".r
 
 }
