@@ -12,9 +12,9 @@ object Application {
   private val defaultExportDir = new File("export");
 
   private def generate(configFile: File,
-                       templateDir: File = defaultTemplateDir,
-                       exportDir: File = defaultExportDir,
-                       ids: List[String] = List.empty[String]) {
+                       templateDir: File,
+                       exportDir: File,
+                       ids: List[String]) {
     val repos = new ClassMetaRepository(Source.fromFile(configFile))
     val gen = new CodeGenService(exportDir, templateDir)
     val targets: List[ClassMeta] = ids match {
