@@ -2,11 +2,15 @@ package codegen.infrastructure.parser
 
 import util.parsing.combinator.RegexParsers
 
-case class CommandLineParseException(message: String) extends Exception(message)
+case class CommandLineParseException(message: String)
+  extends Exception(message)
 
-case class ConfigFile(name: String, ids: List[String] = List.empty[String])
+case class ConfigFile(name: String,
+                      ids: List[String] = List.empty[String])
 
-case class CommandLine(configFile: ConfigFile, templateDir: Option[String] = None, exportDir: Option[String] = None)
+case class CommandLine(configFile: ConfigFile,
+                       templateDir: Option[String] = None,
+                       exportDir: Option[String] = None)
 
 
 class CommandLineParser extends RegexParsers {
