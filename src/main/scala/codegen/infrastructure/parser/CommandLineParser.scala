@@ -5,12 +5,17 @@ import util.parsing.combinator.RegexParsers
 case class CommandLineParseException(message: String)
   extends Exception(message)
 
+trait CommandLine
+
 case class ConfigFile(name: String,
                       ids: List[String] = List.empty[String])
 
-case class CommandLine(configFile: ConfigFile,
-                       templateDir: Option[String] = None,
-                       exportDir: Option[String] = None)
+case class Parameters(configFile: ConfigFile,
+                      templateDir: Option[String] = None,
+                      exportDir: Option[String] = None)
+  extends CommandLine
+
+case class Help extends CommandLine
 
 
 class CommandLineParser extends RegexParsers {
@@ -21,9 +26,15 @@ class CommandLineParser extends RegexParsers {
     case Error(msg, _) => throw new CommandLineParseException(msg)
   }
 
-  lazy val instruction = configFile ~ opt(templateDir) ~ opt(exportDir) ^^ {
+  lazy val instruction = helpInstruction | parametersInstruction
+
+  lazy val helpInstruction = ("-h"|"--help") ^^ {
+    case _ => Help()
+  }
+
+  lazy val parametersInstruction = configFile ~ opt(templateDir) ~ opt(exportDir) ^^ {
     case configFile ~ templateDirOption ~ exportDirOption =>
-      CommandLine(configFile, templateDirOption, exportDirOption)
+      Parameters(configFile, templateDirOption, exportDirOption)
   }
 
   lazy val configFile = ("-c" | "--config") ~> opt("[" ~ repsep(id, ",") ~ "]@") ~ path ^^ {

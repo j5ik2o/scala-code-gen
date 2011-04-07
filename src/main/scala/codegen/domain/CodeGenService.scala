@@ -7,12 +7,18 @@ import scala.collection.JavaConverters._
 
 class CodeGenService(exportDir: File, templateDir: File) {
 
-  def generate(classMetas: List[ClassMeta]) = {
+  def generate(classMetas: List[ClassMeta],
+               beginHandler: Option[(ClassMeta) => Unit] = None,
+               endHandler: Option[(ClassMeta) => Unit] = None) = {
     val configuration = new Configuration
     configuration.setDirectoryForTemplateLoading(templateDir)
     val template = configuration.getTemplate("java.ftl")
     classMetas.foreach {
       classMeta =>
+        beginHandler match {
+          case Some(handler) => handler(classMeta)
+          case None => ()
+        }
         val rootMap = Map("classMeta" -> classMeta)
         val exportClassDir = getExportClassDir(classMeta)
         exportClassDir.mkdirs
@@ -20,6 +26,10 @@ class CodeGenService(exportDir: File, templateDir: File) {
           fileWriter =>
             template.process(rootMap.asJava, fileWriter);
             fileWriter.flush();
+        }
+        endHandler match {
+          case Some(handler) => handler(classMeta)
+          case None => ()
         }
     }
   }
