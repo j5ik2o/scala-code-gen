@@ -11,7 +11,7 @@ class ClassMetaRepository(configSource: BufferedSource) extends EntityResolver[C
   private[this] val modelList = new ModelParser().parse(configSource)
   private[this] val modelMap = modelList.map(cm => (cm.identifier, cm)).toMap
 
-  def iterator: Iterator[ClassMeta] = modelMap.map(_._2.clone).iterator
+  def iterator: Iterator[ClassMeta] = modelMap.map(mapEntry => ClassMeta(mapEntry._2)).iterator
 
-  def resolve(identifier: Identifier): ClassMeta = modelMap(identifier)
+  def resolve(identifier: Identifier): ClassMeta = ClassMeta(modelMap(identifier))
 }

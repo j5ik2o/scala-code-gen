@@ -19,7 +19,7 @@ class ClassMeta
 (@BeanProperty val identifier: Identifier,
  @BeanProperty val name: String,
  val packageName: Option[String],
- val fieldMetas: List[FieldMeta]) extends Entity with EntityCloneable[ClassMeta] {
+ val fieldMetas: List[FieldMeta]) extends Entity {
 
   override def toString: String = "ClassMeta(%s, %s, %s, %s)".format(identifier, name, packageName, fieldMetas)
 
@@ -35,6 +35,9 @@ object ClassMeta {
 
   def apply(name: String, packageName: Option[String], fieldMetas: List[FieldMeta]) =
     new ClassMeta(Identifier(), name, packageName, fieldMetas)
+
+  def apply(classMeta: ClassMeta):ClassMeta =
+    apply(classMeta.identifier, classMeta.name, classMeta.packageName, classMeta.fieldMetas)
 
   def unapply(classMeta: ClassMeta) =
     Some(classMeta.identifier, classMeta.name, classMeta.packageName, classMeta.fieldMetas)

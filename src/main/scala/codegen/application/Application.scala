@@ -19,9 +19,9 @@ object Application extends Logging {
     info("コード生成を開始します。設定ファイル = %s, テンプレートディレクトリ = %s, 出力先ディレクトリ = %s".format(configFile, templateDir, exportDir))
     val repos = new ClassMetaRepository(Source.fromFile(configFile))
     val gen = new CodeGenService(exportDir, templateDir)
-    val targets: List[ClassMeta] = ids match {
+    val targets = ids match {
       case Nil => repos.toList
-      case xs: List[String] => xs.map {
+      case xs => xs.map {
         e => repos.resolve(Identifier(e))
       }
     }

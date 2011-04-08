@@ -7,8 +7,15 @@ import jp.tricreo.scala.ddd.base.model.Identifier
 
 case class ModelParseException(message: String) extends Exception(message)
 
+/** 設定ファイルからモデルを取り出すためのパーサ。
+ *  @author j5ik2o
+ */
 class ModelParser extends JavaTokenParsers {
 
+  /**ソースを解析してモデルを返す。
+   * @param source {@link io.BufferedSource}
+   * @return codegen.domain.ClassMeta}の[[List]]
+   */
   def parse(source: BufferedSource): List[ClassMeta] = parse(source.reader)
 
   def parse(source: java.io.Reader) = (parseAll(rep(classMeta), source): @unchecked) match {

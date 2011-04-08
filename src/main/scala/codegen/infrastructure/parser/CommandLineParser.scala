@@ -28,7 +28,7 @@ class CommandLineParser extends RegexParsers {
 
   lazy val instruction = helpInstruction | parametersInstruction
 
-  lazy val helpInstruction = ("-h"|"--help") ^^ {
+  lazy val helpInstruction = paramExpr("-h",Some("--help")) ^^ {
     case _ => Help()
   }
 
@@ -37,18 +37,29 @@ class CommandLineParser extends RegexParsers {
       Parameters(configFile, templateDirOption, exportDirOption)
   }
 
-  lazy val configFile = ("-c" | "--config") ~> opt("[" ~ repsep(id, ",") ~ "]@") ~ path ^^ {
+  lazy val configFile = paramExprWithArg("-c", configArgs, Some("--config"))
+  lazy val templateDir = paramExprWithArg("-t", path, Some("--template"))
+  lazy val exportDir = paramExprWithArg("-e", path, Some("--export"))
+
+  lazy val configArgs =  opt("[" ~ repsep(id, ",") ~ "]@") ~ path ^^{
     case Some("[" ~ ids ~ "]@") ~ cpath => ConfigFile(cpath, ids)
     case None ~ cpath => ConfigFile(cpath, List.empty[String])
   }
 
-  lazy val templateDir = ("-t" | "--template") ~> path
-
-  lazy val exportDir = ("-e" | "--export") ~> path
-
-
   lazy val path = """\S*""".r
-
   lazy val id = """[\-0-9a-zA-Z]+""".r
+
+  def paramParser(shortParam: String, longParamOp: Option[String]): Parser[String] = longParamOp match {
+    case Some(longParam) => shortParam | longParam
+    case None => shortParam
+  }
+
+  def paramExprWithArg[T](shortParam: String, argsParser : Parser[T], longParamOp: Option[String] = None) = {
+    paramParser(shortParam, longParamOp) ~> argsParser
+  }
+
+  def paramExpr(shortParam: String, longParamOp: Option[String] = None) = {
+    paramParser(shortParam, longParamOp)
+  }
 
 }
